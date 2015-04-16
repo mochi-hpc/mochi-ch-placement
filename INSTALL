@@ -1,0 +1,5 @@
+./prepare # if cloned from git
+./configure --prefix=/desired/installation/path
+make -j 3
+make install
+make check # optional
