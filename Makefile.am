@@ -24,8 +24,9 @@ lib_libch_placement_la_LIBADD =
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = maint/ch-placement.pc
 
-AM_CPPFLAGS += -I$(top_srcdir)/src
+AM_CPPFLAGS += -I$(top_srcdir)/include
 
 include src/Makefile.subdir
+include src/modules/Makefile.subdir
 include tests/Makefile.subdir
 

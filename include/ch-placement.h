@@ -9,6 +9,9 @@
 
 #include <stdint.h>
 
+/* maximum replication factor allowed by library */
+#define CH_MAX_REPLICATION 5
+
 /* set placement parameters: placement type and number of servers */
 void ch_placement_set(char* type, unsigned int num_servers);
 
