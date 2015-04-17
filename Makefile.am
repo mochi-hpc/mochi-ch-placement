@@ -21,6 +21,8 @@ lib_LTLIBRARIES += lib/libch-placement.la
 lib_libch_placement_la_SOURCES = 
 lib_libch_placement_la_LIBADD =
 
+LDADD = lib/libch-placement.la
+
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = maint/ch-placement.pc
 

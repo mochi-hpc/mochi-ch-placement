@@ -71,11 +71,11 @@ struct placement_mod* placement_mod_xor(int n_svrs, int virt_factor)
      */
     for(i=0; i<n_svrs; i++)
     {
-        for(j=0; j<n_svrs*virt_factor; j++)
+        for(j=0; j<virt_factor; j++)
         {
             h1 = j;
             h2 = 0;
-            bj_hashlittle2(&i, sizeof(i), &h1, &h2);
+            ch_bj_hashlittle2(&i, sizeof(i), &h1, &h2);
             mod_state->virt_table[j*n_svrs+i].svr_idx = i;
             mod_state->virt_table[j*n_svrs+i].svr_id = h1 + (((uint64_t)h2)<<32);
         }

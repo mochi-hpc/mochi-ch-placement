@@ -12,6 +12,14 @@
 /* maximum replication factor allowed by library */
 #define CH_MAX_REPLICATION 5
 
+struct ch_placement_instance;
+
+struct ch_placement_instance* ch_placement_initialize(const char* name, 
+    int n_svrs, int virt_factor);
+
+uint64_t ch_placement_random_u64(void);
+
+#if 0
 /* set placement parameters: placement type and number of servers */
 void ch_placement_set(char* type, unsigned int num_servers);
 
@@ -25,6 +33,8 @@ void ch_placement_create_striped(unsigned long file_size,
   unsigned int strip_size,
   unsigned int* num_objects,
   uint64_t *oids, unsigned long *sizes);
+
+#endif
 
 #endif /* CH_PLACEMENT_H */
 

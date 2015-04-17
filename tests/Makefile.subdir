@@ -1,0 +1,8 @@
+check_PROGRAMS += \
+ tests/ch-placement-test
+
+TESTS += \
+ tests/test-xor.sh
+
+EXTRA_DIST += \
+ tests/test-xor.sh

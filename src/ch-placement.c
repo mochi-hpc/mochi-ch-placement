@@ -7,9 +7,52 @@
 #include <stdio.h>
 #include <assert.h>
 #include <string.h>
+#include <stdlib.h>
 
 #include "ch-placement.h"
 #include "src/modules/placement-mod.h"
+
+/* externs pointing to api for each module */
+extern struct placement_mod_map xor_mod_map;
+
+/* table of available modules */
+static struct placement_mod_map *table[] = 
+{
+    &xor_mod_map,
+    NULL,
+};
+
+struct ch_placement_instance
+{
+    struct placement_mod *mod;
+};
+
+struct ch_placement_instance* ch_placement_initialize(const char* name,
+    int n_svrs, int virt_factor)
+{
+    struct ch_placement_instance *instance = NULL;
+    int i;
+
+    for(i=0; table[i]!= NULL; i++)
+    {
+        if(strcmp(name, table[i]->type) == 0)
+        {
+            instance = malloc(sizeof(*instance));
+            if(instance)
+            {
+                instance->mod = table[i]->initiate(n_svrs, virt_factor);
+                if(!instance->mod)
+                {
+                    free(instance);
+                    instance = NULL;
+                }
+            }
+            break;
+        }
+    }
+    
+    return(instance);
+}
 
 void placement_create_striped_random(unsigned long file_size, 
   unsigned int replication, unsigned int max_stripe_width, 
@@ -57,10 +100,27 @@ void placement_create_striped_random(unsigned long file_size,
     /* oid of each object */
     for(i=0; i<stripe_width; i++)
     {
-        oids[i] = random_u64();
+        oids[i] = ch_placement_random_u64();
     }
 
     return;
+}
+
+/* TODO: optimize this */
+uint64_t ch_placement_random_u64(void)
+{
+    uint64_t bigr = 0;
+    uint64_t litr;
+    int i;
+
+    for(i=0; i<8; i++)
+    {
+        litr = random();
+        litr = litr & 0xFF;
+        bigr += (litr << (i*8));
+    }
+
+    return(bigr);
 }
 
 #if 0
