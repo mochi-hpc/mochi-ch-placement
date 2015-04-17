@@ -19,6 +19,7 @@ struct placement_mod
       unsigned int* num_objects,
       uint64_t *oids, unsigned long *sizes,
       struct placement_mod *mod);
+    void (*finalize)(struct placement_mod *mod);
     void *data;
 };
 

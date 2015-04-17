@@ -17,6 +17,8 @@ struct ch_placement_instance;
 struct ch_placement_instance* ch_placement_initialize(const char* name, 
     int n_svrs, int virt_factor);
 
+void ch_placement_finalize(struct ch_placement_instance *instance);
+
 uint64_t ch_placement_random_u64(void);
 
 #if 0

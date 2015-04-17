@@ -123,6 +123,13 @@ uint64_t ch_placement_random_u64(void)
     return(bigr);
 }
 
+void ch_placement_finalize(struct ch_placement_instance *instance)
+{
+    instance->mod->finalize(instance->mod);
+    free(instance);
+    return;
+}
+
 #if 0
 static unsigned int placement_num_servers = 0;
 struct placement_mod* module = NULL;

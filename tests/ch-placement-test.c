@@ -29,12 +29,14 @@ int main(int argc, char **argv)
     unsigned replication_factor;
     struct ch_placement_instance *inst;
 
+    /* argument parsing */
+    /**************************/
+
     if(argc != 6)
     {
         fprintf(stderr, "Usage: %s <module> <n_svrs> <virt_factor> <oid> <replication_factor>\n", argv[0]);
         return(-1);
     }
-
     ret = sscanf(argv[2], "%u", &n_svrs);
     if(ret != 1)
     {
@@ -60,6 +62,7 @@ int main(int argc, char **argv)
         fprintf(stderr, "Usage: %s <module> <n_svrs> <virt_factor> <oid> <replication_factor>\n", argv[0]);
         return(-1);
     }
+    /**************************/
 
     inst = ch_placement_initialize(argv[1], n_svrs, virt_factor);
 
@@ -68,6 +71,8 @@ int main(int argc, char **argv)
         fprintf(stderr, "Error: failed to initialize %s\n", argv[1]);
         return(-1);
     }
+
+    ch_placement_finalize(inst);
 
     return(0);
 }

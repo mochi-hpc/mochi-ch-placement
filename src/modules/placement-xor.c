@@ -15,6 +15,7 @@
 static struct placement_mod* placement_mod_xor(int n_svrs, int virt_factor);
 static void placement_find_closest_xor(uint64_t obj, unsigned int replication, 
     unsigned long *server_idxs, struct placement_mod *mod);
+static void placement_finalize_xor(struct placement_mod *mod);
 
 struct placement_mod_map xor_mod_map = 
 {
@@ -83,6 +84,7 @@ struct placement_mod* placement_mod_xor(int n_svrs, int virt_factor)
 
     mod_xor->find_closest = placement_find_closest_xor;
     mod_xor->create_striped = placement_create_striped_random;
+    mod_xor->finalize = placement_finalize_xor;
 
     return(mod_xor);
 }
@@ -120,6 +122,16 @@ static void placement_find_closest_xor(uint64_t obj, unsigned int replication,
     return;
 }
 
+static void placement_finalize_xor(struct placement_mod *mod)
+{
+    struct xor_state *mod_state = mod->data;
+
+    free(mod_state->virt_table);
+    free(mod_state);
+    free(mod);
+
+    return;
+}
 
 
 /*
