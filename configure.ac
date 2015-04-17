@@ -26,6 +26,18 @@ AC_CHECK_SIZEOF([long int])
 #  not properly setup for it (versioning etc.)
 AM_DISABLE_SHARED([true])
 
+AC_ARG_WITH([crush],[AS_HELP_STRING([--with-crush@<:@=DIR@:>@],
+                        [location of RADOS libraries and CRUSH headers])])
+if test "x${with_crush}" != "x" ; then
+    CH_ENABLE_CRUSH=1
+    AC_SUBST(CH_ENABLE_CRUSH)
+    AC_DEFINE([CH_ENABLE_CRUSH], [], [Define if CRUSH alogithm support enabled])
+    CFLAGS+=" -I${with_crush}/include"
+    CPPFLAGS+=" -I${with_crush}/include"
+    LDFLAGS+=" -L${with_crush}/lib"
+    LIBS+=" -lrados -lm"
+fi
+
 BUILD_ABSOLUTE_TOP=${PWD}
 SRC_RELATIVE_TOP=$srcdir
 SRC_ABSOLUTE_TOP=`cd $srcdir; pwd`
