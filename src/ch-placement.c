@@ -15,12 +15,14 @@
 /* externs pointing to api for each module */
 extern struct placement_mod_map xor_mod_map;
 extern struct placement_mod_map ring_mod_map;
+extern struct placement_mod_map multiring_mod_map;
 
 /* table of available modules */
 static struct placement_mod_map *table[] = 
 {
     &xor_mod_map,
     &ring_mod_map,
+    &multiring_mod_map,
     NULL,
 };
 
