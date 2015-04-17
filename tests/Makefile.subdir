@@ -1,5 +1,7 @@
 TESTS += \
- tests/test-xor.sh
+ tests/test-xor.sh \
+ tests/test-ring.sh
 
 EXTRA_DIST += \
- tests/test-xor.sh
+ tests/test-xor.sh \
+ tests/test-ring.sh
