@@ -27,6 +27,30 @@ struct ch_placement_instance
     struct placement_mod *mod;
 };
 
+#ifdef CH_ENABLE_CRUSH
+#include "ch-placement-crush.h"
+extern struct placement_mod* placement_mod_crush(struct crush_map *map, __u32 *weight, int n_weight)
+
+struct ch_placement_instance* ch_placement_initialize_crush(struct crush_map *map, __u32 *weight, int n_weight)
+{
+    struct ch_placement_instance *instance = NULL;
+
+    instance = malloc(sizeof(*instance));
+    if(instance)
+    {
+        instance->mod = placement_mod_crush(map, weight, n_weight);
+        if(!instance->mod)
+        {
+            free(instance);
+            instance = NULL;
+        }
+    }
+
+    return(instance);
+}
+
+#endif
+
 struct ch_placement_instance* ch_placement_initialize(const char* name,
     int n_svrs, int virt_factor)
 {
