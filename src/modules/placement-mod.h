@@ -12,12 +12,13 @@
 struct placement_mod
 {
     void (*find_closest)(uint64_t obj, unsigned int replication, 
-        unsigned long* server_idxs);
+        unsigned long* server_idxs, struct placement_mod *mod);
     void (*create_striped)(unsigned long file_size, 
       unsigned int replication, unsigned int max_stripe_width, 
       unsigned int strip_size,
       unsigned int* num_objects,
-      uint64_t *oids, unsigned long *sizes);
+      uint64_t *oids, unsigned long *sizes,
+      struct placement_mod *mod);
     void *data;
 };
 
@@ -32,7 +33,8 @@ void placement_create_striped_random(unsigned long file_size,
   unsigned int replication, unsigned int max_stripe_width, 
   unsigned int strip_size,
   unsigned int* num_objects,
-  uint64_t *oids, unsigned long *sizes);
+  uint64_t *oids, unsigned long *sizes,
+  struct placement_mod *mod);
 
 
 #endif /* PLACEMENT_MOD_H */

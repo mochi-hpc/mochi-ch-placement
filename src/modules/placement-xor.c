@@ -13,10 +13,8 @@
 
 
 static struct placement_mod* placement_mod_xor(int n_svrs, int virt_factor);
-static uint64_t placement_distance_xor(uint64_t a, uint64_t b, 
-    unsigned int num_servers);
 static void placement_find_closest_xor(uint64_t obj, unsigned int replication, 
-    unsigned long *server_idxs);
+    unsigned long *server_idxs, struct placement_mod *mod);
 
 struct placement_mod_map xor_mod_map = 
 {
@@ -32,8 +30,8 @@ struct vnode
 
 struct xor_state
 {
-    int n_svrs;
-    int virt_factor;
+    unsigned int n_svrs;
+    unsigned int virt_factor;
     struct vnode *virt_table;
 };
 
@@ -90,25 +88,25 @@ struct placement_mod* placement_mod_xor(int n_svrs, int virt_factor)
 }
 
 static void placement_find_closest_xor(uint64_t obj, unsigned int replication, 
-    unsigned long* server_idxs)
+    unsigned long* server_idxs, struct placement_mod *mod)
 {
-#if 0
-    unsigned int i, j;
-    uint64_t svr, tmp_svr;
-    uint64_t servers[CH_MAX_REPLICATION];
+    struct xor_state *mod_state = mod->data;
+    struct vnode closest[CH_MAX_REPLICATION];
+    struct vnode svr, tmp_svr;
+    unsigned int i,j;
 
     for(i=0; i<replication; i++)
-        servers[i] = UINT64_MAX;
+        closest[i].svr_idx = UINT64_MAX;
 
-    for(i=0; i<num_servers; i++)
+    for(i=0; i<(mod_state->n_svrs*mod_state->virt_factor); i++)
     {
-        svr = placement_index_to_id(i);
+        svr = mod_state->virt_table[i];
         for(j=0; j<replication; j++)
         {
-            if(servers[j] == UINT64_MAX || (obj ^ svr) < (obj ^ servers[j]))
+            if(closest[j].svr_idx == UINT64_MAX || (obj ^ svr.svr_id) < (obj ^ closest[j].svr_id))
             {
-                tmp_svr = servers[j];
-                servers[j] = svr;
+                tmp_svr = closest[j];
+                closest[j] = svr;
                 svr = tmp_svr;
             }
         }
@@ -116,10 +114,9 @@ static void placement_find_closest_xor(uint64_t obj, unsigned int replication,
 
     for(i=0; i<replication; i++)
     {
-        server_idxs[i] = placement_id_to_index(servers[i]);
+        server_idxs[i] = closest[i].svr_idx;
     }
 
-#endif
     return;
 }
 
