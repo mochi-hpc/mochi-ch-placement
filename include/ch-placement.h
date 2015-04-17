@@ -27,16 +27,15 @@ void ch_placement_find_closest(
 
 uint64_t ch_placement_random_u64(void);
 
-#if 0
-
-/* generate a set of OIDs for striping a file */
-void ch_placement_create_striped(unsigned long file_size, 
-  unsigned int replication, unsigned int max_stripe_width, 
-  unsigned int strip_size,
-  unsigned int* num_objects,
-  uint64_t *oids, unsigned long *sizes);
-
-#endif
+void ch_placement_create_striped(
+    struct ch_placement_instance *instance,
+    unsigned long file_size, 
+    unsigned int replication, 
+    unsigned int max_stripe_width, 
+    unsigned int strip_size,
+    unsigned int* num_objects,
+    uint64_t *oids, 
+    unsigned long *sizes);
 
 #endif /* CH_PLACEMENT_H */
 

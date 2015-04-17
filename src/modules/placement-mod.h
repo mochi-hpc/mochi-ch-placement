@@ -13,12 +13,11 @@ struct placement_mod
 {
     void (*find_closest)(struct placement_mod *mod, uint64_t obj, unsigned int replication, 
         unsigned long* server_idxs);
-    void (*create_striped)(unsigned long file_size, 
+    void (*create_striped)(struct placement_mod *mod, unsigned long file_size, 
       unsigned int replication, unsigned int max_stripe_width, 
       unsigned int strip_size,
       unsigned int* num_objects,
-      uint64_t *oids, unsigned long *sizes,
-      struct placement_mod *mod);
+      uint64_t *oids, unsigned long *sizes);
     void (*finalize)(struct placement_mod *mod);
     void *data;
 };
@@ -30,12 +29,12 @@ struct placement_mod_map
 };
 
 /* generic striping function; just allocates random oids */
-void placement_create_striped_random(unsigned long file_size, 
+void placement_create_striped_random(struct placement_mod *mod,
+  unsigned long file_size, 
   unsigned int replication, unsigned int max_stripe_width, 
   unsigned int strip_size,
   unsigned int* num_objects,
-  uint64_t *oids, unsigned long *sizes,
-  struct placement_mod *mod);
+  uint64_t *oids, unsigned long *sizes);
 
 
 #endif /* PLACEMENT_MOD_H */

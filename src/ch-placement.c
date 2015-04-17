@@ -54,12 +54,12 @@ struct ch_placement_instance* ch_placement_initialize(const char* name,
     return(instance);
 }
 
-void placement_create_striped_random(unsigned long file_size, 
+void placement_create_striped_random(struct placement_mod *mod, 
+    unsigned long file_size, 
   unsigned int replication, unsigned int max_stripe_width, 
   unsigned int strip_size,
   unsigned int* num_objects,
-  uint64_t *oids, unsigned long *sizes,
-  struct placement_mod *mod)
+  uint64_t *oids, unsigned long *sizes)
 {
     unsigned int stripe_width;
     int i;
@@ -137,6 +137,22 @@ void ch_placement_find_closest(
     unsigned long* server_idxs)
 {
     instance->mod->find_closest(instance->mod, obj, replication, server_idxs);
+    return;
+}
+
+void ch_placement_create_striped(
+    struct ch_placement_instance *instance,
+    unsigned long file_size, 
+    unsigned int replication, 
+    unsigned int max_stripe_width, 
+    unsigned int strip_size,
+    unsigned int* num_objects,
+    uint64_t *oids, 
+    unsigned long *sizes)
+{
+    instance->mod->create_striped(instance->mod, file_size,
+        replication, max_stripe_width, strip_size, num_objects, oids,
+        sizes);
     return;
 }
 
