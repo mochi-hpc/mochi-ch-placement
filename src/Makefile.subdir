@@ -3,4 +3,5 @@ lib_libch_placement_la_SOURCES += \
  src/ch-placement.c
 
 bin_PROGRAMS += \
- src/ch-placement-lookup
+ src/ch-placement-lookup \
+ src/ch-placement-stripe
