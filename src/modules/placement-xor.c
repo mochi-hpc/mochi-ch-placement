@@ -10,11 +10,12 @@
 
 #include "ch-placement.h"
 #include "src/modules/placement-mod.h"
+#include "src/lookup3.h"
 
 
 static struct placement_mod* placement_mod_xor(int n_svrs, int virt_factor);
-static void placement_find_closest_xor(uint64_t obj, unsigned int replication, 
-    unsigned long *server_idxs, struct placement_mod *mod);
+static void placement_find_closest_xor(struct placement_mod *mod, uint64_t obj, unsigned int replication, 
+    unsigned long *server_idxs);
 static void placement_finalize_xor(struct placement_mod *mod);
 
 struct placement_mod_map xor_mod_map = 
@@ -89,8 +90,8 @@ struct placement_mod* placement_mod_xor(int n_svrs, int virt_factor)
     return(mod_xor);
 }
 
-static void placement_find_closest_xor(uint64_t obj, unsigned int replication, 
-    unsigned long* server_idxs, struct placement_mod *mod)
+static void placement_find_closest_xor(struct placement_mod *mod, uint64_t obj, unsigned int replication, 
+    unsigned long* server_idxs)
 {
     struct xor_state *mod_state = mod->data;
     struct vnode closest[CH_MAX_REPLICATION];

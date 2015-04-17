@@ -130,6 +130,17 @@ void ch_placement_finalize(struct ch_placement_instance *instance)
     return;
 }
 
+void ch_placement_find_closest(
+    struct ch_placement_instance *instance,
+    uint64_t obj, 
+    unsigned int replication, 
+    unsigned long* server_idxs)
+{
+    instance->mod->find_closest(instance->mod, obj, replication, server_idxs);
+    return;
+}
+
+
 #if 0
 static unsigned int placement_num_servers = 0;
 struct placement_mod* module = NULL;

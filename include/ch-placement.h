@@ -19,6 +19,12 @@ struct ch_placement_instance* ch_placement_initialize(const char* name,
 
 void ch_placement_finalize(struct ch_placement_instance *instance);
 
+void ch_placement_find_closest(
+    struct ch_placement_instance *instance,
+    uint64_t obj, 
+    unsigned int replication, 
+    unsigned long* server_idxs);
+
 uint64_t ch_placement_random_u64(void);
 
 #if 0

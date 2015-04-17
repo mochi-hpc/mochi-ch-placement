@@ -11,8 +11,8 @@
 
 struct placement_mod
 {
-    void (*find_closest)(uint64_t obj, unsigned int replication, 
-        unsigned long* server_idxs, struct placement_mod *mod);
+    void (*find_closest)(struct placement_mod *mod, uint64_t obj, unsigned int replication, 
+        unsigned long* server_idxs);
     void (*create_striped)(unsigned long file_size, 
       unsigned int replication, unsigned int max_stripe_width, 
       unsigned int strip_size,

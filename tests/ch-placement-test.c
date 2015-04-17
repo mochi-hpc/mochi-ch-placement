@@ -28,6 +28,8 @@ int main(int argc, char **argv)
     uint64_t oid;
     unsigned replication_factor;
     struct ch_placement_instance *inst;
+    unsigned long server_idxs[CH_MAX_REPLICATION];
+    int i;
 
     /* argument parsing */
     /**************************/
@@ -62,6 +64,13 @@ int main(int argc, char **argv)
         fprintf(stderr, "Usage: %s <module> <n_svrs> <virt_factor> <oid> <replication_factor>\n", argv[0]);
         return(-1);
     }
+
+    if(replication_factor > CH_MAX_REPLICATION)
+    {
+        fprintf(stderr, "Error: max replication level is %u\n", CH_MAX_REPLICATION);
+        return(-1);
+    }
+
     /**************************/
 
     inst = ch_placement_initialize(argv[1], n_svrs, virt_factor);
@@ -70,6 +79,13 @@ int main(int argc, char **argv)
     {
         fprintf(stderr, "Error: failed to initialize %s\n", argv[1]);
         return(-1);
+    }
+
+    ch_placement_find_closest(inst, oid, replication_factor, server_idxs);
+    printf("<replica> <server index>\n========================\n");
+    for(i=0; i<replication_factor; i++)
+    {
+        printf("%d\t%lu\n", i, server_idxs[i]);
     }
 
     ch_placement_finalize(inst);
