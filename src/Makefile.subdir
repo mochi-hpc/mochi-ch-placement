@@ -1,2 +1,3 @@
 lib_libch_placement_la_SOURCES += \
- src/lookup3.c
+ src/lookup3.c \
+ src/ch-placement.c

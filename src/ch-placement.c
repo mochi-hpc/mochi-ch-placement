@@ -8,17 +8,62 @@
 #include <assert.h>
 #include <string.h>
 
-#include "placement.h"
-#include "placement-mod.h"
-#include "placement-euclid-1d.h"
-#include "placement-euclid-2d.h"
-#include "placement-xor.h"
-#include "placement-hash.h"
-#include "placement-hash-spooky.h"
-#include "placement-multiring.h"
-#include "placement-virt.h"
-#include "objects.h"
+#include "ch-placement.h"
+#include "src/modules/placement-mod.h"
 
+void placement_create_striped_random(unsigned long file_size, 
+  unsigned int replication, unsigned int max_stripe_width, 
+  unsigned int strip_size,
+  unsigned int* num_objects,
+  uint64_t *oids, unsigned long *sizes,
+  struct placement_mod *mod)
+{
+    unsigned int stripe_width;
+    int i;
+    unsigned long size_left = file_size;
+    unsigned long full_stripes;
+
+    /* how many objects to use */
+    stripe_width = file_size / strip_size + 1;
+    if(file_size % strip_size == 0)
+        stripe_width--;
+    if(stripe_width > max_stripe_width)
+        stripe_width = max_stripe_width;
+    *num_objects = stripe_width;
+
+    /* size of each object */
+    full_stripes = size_left/(stripe_width*strip_size);
+    size_left -= full_stripes * stripe_width * strip_size;
+    for(i=0; i<stripe_width; i++)
+    {
+        /* handle full stripes */
+        sizes[i] = full_stripes*strip_size;
+        /* handle remainder */
+        if(size_left > 0)
+        {
+            if(size_left > strip_size)
+            {
+                sizes[i] += strip_size;
+                size_left -= strip_size;
+            }
+            else
+            {
+                sizes[i] += size_left;
+                size_left = 0;
+            }
+        }
+    }
+
+    /* oid of each object */
+    for(i=0; i<stripe_width; i++)
+    {
+        oids[i] = random_u64();
+    }
+
+    return;
+}
+
+#if 0
 static unsigned int placement_num_servers = 0;
 struct placement_mod* module = NULL;
 
@@ -125,57 +170,6 @@ void placement_find_closest(uint64_t obj, unsigned int replication,
     return(module->placement_find_closest(obj, replication, server_idxs, placement_num_servers));
 }
 
-void placement_create_striped_random(unsigned long file_size, 
-  unsigned int replication, unsigned int max_stripe_width, 
-  unsigned int strip_size,
-  unsigned int* num_objects,
-  uint64_t *oids, unsigned long *sizes)
-{
-    unsigned int stripe_width;
-    int i;
-    unsigned long size_left = file_size;
-    unsigned long full_stripes;
-
-    /* how many objects to use */
-    stripe_width = file_size / strip_size + 1;
-    if(file_size % strip_size == 0)
-        stripe_width--;
-    if(stripe_width > max_stripe_width)
-        stripe_width = max_stripe_width;
-    *num_objects = stripe_width;
-
-    /* size of each object */
-    full_stripes = size_left/(stripe_width*strip_size);
-    size_left -= full_stripes * stripe_width * strip_size;
-    for(i=0; i<stripe_width; i++)
-    {
-        /* handle full stripes */
-        sizes[i] = full_stripes*strip_size;
-        /* handle remainder */
-        if(size_left > 0)
-        {
-            if(size_left > strip_size)
-            {
-                sizes[i] += strip_size;
-                size_left -= strip_size;
-            }
-            else
-            {
-                sizes[i] += size_left;
-                size_left = 0;
-            }
-        }
-    }
-
-    /* oid of each object */
-    for(i=0; i<stripe_width; i++)
-    {
-        oids[i] = random_u64();
-    }
-
-    return;
-}
-
 void placement_create_striped(unsigned long file_size, 
   unsigned int replication, unsigned int max_stripe_width, 
   unsigned int strip_size,
@@ -185,6 +179,7 @@ void placement_create_striped(unsigned long file_size,
     return(module->placement_create_striped(file_size, replication,
         max_stripe_width, strip_size, num_objects, oids, sizes));
 }
+#endif
 
 /*
  * Local variables:
