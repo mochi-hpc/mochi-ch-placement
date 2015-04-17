@@ -28,12 +28,6 @@ void ch_placement_find_closest(
 uint64_t ch_placement_random_u64(void);
 
 #if 0
-/* set placement parameters: placement type and number of servers */
-void ch_placement_set(char* type, unsigned int num_servers);
-
-/* calculate the N closest servers to a given object */
-void ch_placement_find_closest(uint64_t obj, unsigned int replication, 
-    unsigned long* server_idxs);
 
 /* generate a set of OIDs for striping a file */
 void ch_placement_create_striped(unsigned long file_size, 
