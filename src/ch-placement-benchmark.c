@@ -26,6 +26,7 @@ struct options
     unsigned int replication;
     char* placement;
     unsigned int virt_factor;
+    char* comb_name;
 };
 
 static int usage (char *exename);
@@ -64,7 +65,6 @@ int main(
         ig_opts->virt_factor);
 
     /* generate random set of objects for testing */
-    printf("# WARNING: remember to compile this with -O2 at least.\n");
     printf("# Generating random object IDs...\n");
     oid_gen("random", instance, OBJ_ARRAY_SIZE, ULONG_MAX,
         8675309, ig_opts->replication, ig_opts->num_servers,
@@ -76,7 +76,7 @@ int main(
 
     sleep(1);
 
-    printf("# Running placement benchmark...\n");
+    printf("# Calculating placement for each object ID...\n");
     /* run placement benchmark */
     t1 = Wtime();
 #pragma omp parallel for
@@ -87,14 +87,22 @@ int main(
     t2 = Wtime();
     printf("# Done.\n");
 
-    printf("# <objects>\t<replication>\t<servers>\t<algorithm>\t<time (s)>\t<rate oids/s>\n");
-    printf("%u\t%d\t%u\t%s\t%f\t%f\n",
-        ig_opts->num_objs,
-        ig_opts->replication,
-        ig_opts->num_servers,
-        ig_opts->placement,
-        t2-t1,
-        (double)ig_opts->num_objs/(t2-t1));
+    if(!ig_opts->comb_name)
+    {
+        printf("# <objects>\t<replication>\t<servers>\t<algorithm>\t<time (s)>\t<rate oids/s>\n");
+        printf("%u\t%d\t%u\t%s\t%f\t%f\n",
+            ig_opts->num_objs,
+            ig_opts->replication,
+            ig_opts->num_servers,
+            ig_opts->placement,
+            t2-t1,
+            (double)ig_opts->num_objs/(t2-t1));
+    }
+    else
+    {
+        printf("# NOTE: computational performance not shown.\n");
+        printf("#   calculating combinations and outputing to %s.\n", ig_opts->comb_name);
+    }
 
     /* we don't need the global list any more */
     free(total_objs);
@@ -127,7 +135,7 @@ static struct options *parse_args(int argc, char *argv[])
         return(NULL);
     memset(opts, 0, sizeof(*opts));
 
-    while((one_opt = getopt(argc, argv, "s:o:r:hp:v:")) != EOF)
+    while((one_opt = getopt(argc, argv, "s:o:r:hp:v:c:")) != EOF)
     {
         switch(one_opt)
         {
@@ -154,6 +162,11 @@ static struct options *parse_args(int argc, char *argv[])
             case 'p':
                 opts->placement = strdup(optarg);
                 if(!opts->placement)
+                    return(NULL);
+                break;
+            case 'c':
+                opts->comb_name = strdup(optarg);
+                if(!opts->comb_name)
                     return(NULL);
                 break;
             case '?':
