@@ -2,7 +2,8 @@ lib_libch_placement_la_SOURCES += \
  src/modules/placement-xor.c \
  src/modules/placement-ring.c \
  src/modules/placement-multiring.c \
- src/modules/placement-hash-lookup3.c
+ src/modules/placement-hash-lookup3.c \
+ src/modules/placement-hash-spooky.c
 
 if CH_ENABLE_CRUSH
 lib_libch_placement_la_SOURCES += \
