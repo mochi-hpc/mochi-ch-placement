@@ -30,6 +30,12 @@ struct options
     char* comb_name;
 };
 
+struct comb_stats {
+    unsigned long count;
+    unsigned long bytes;
+};
+
+static int comb_cmp (const void *a, const void *b);
 static int usage (char *exename);
 static struct options *parse_args(int argc, char *argv[]);
 
@@ -51,12 +57,35 @@ int main(
     unsigned int i;
     double t1, t2;
     struct ch_placement_instance *instance;
+    int fd;
+    struct comb_stats *cs;
+    uint64_t num_combs;
+    unsigned long comb_tmp[CH_MAX_REPLICATION];
+    int ret;
 
     ig_opts = parse_args(argc, argv);
     if(!ig_opts)
     {
         usage(argv[0]);
         return(-1);
+    }
+
+    if (ig_opts->comb_name){
+        /* set up state to count replica combinations and store results */
+        fd = open(ig_opts->comb_name, O_WRONLY|O_CREAT|O_EXCL, 
+                S_IRUSR|S_IWUSR|S_IRGRP);
+        if(fd < 0) {
+            perror("open");
+            return(-1);
+        }
+        
+        num_combs = choose(ig_opts->num_servers, ig_opts->replication);
+        cs = calloc(num_combs, sizeof(*cs));
+        assert(cs);
+        printf("# Total possible combinations for %u servers and %u replication: %lu\n",
+                ig_opts->num_servers, ig_opts->replication, num_combs);
+        printf("#  Combo state metrics consuming %lu MiB of memory\n", (num_combs*sizeof(*cs))/(1024*1024));
+
     }
 
     instance = ch_placement_initialize(ig_opts->placement, 
@@ -69,7 +98,8 @@ int main(
         8675309, ig_opts->replication, ig_opts->num_servers,
         NULL,
         &total_byte_count, &total_obj_count, &total_objs);
-    printf("# Done.  Consumed approximately %lu MiB of memory.\n", (ig_opts->num_objs*sizeof(*total_objs))/(1024*1024));
+    printf("# Done.\n");
+    printf("#  Object population consuming approximately %lu MiB of memory.\n", (ig_opts->num_objs*sizeof(*total_objs))/(1024*1024));
 
     assert(total_obj_count == ig_opts->num_objs);
 
@@ -82,6 +112,15 @@ int main(
     for(i=0; i<ig_opts->num_objs; i++)
     {
         ch_placement_find_closest(instance, total_objs[i].oid, ig_opts->replication, total_objs[i].server_idxs);
+        /* compute the index corresponding to this combination of servers */
+        if (ig_opts->comb_name){
+            memcpy(comb_tmp, total_objs[i].server_idxs, 
+                    ig_opts->replication*sizeof(*comb_tmp));
+            rev_ins_sort(ig_opts->replication, comb_tmp);
+            uint64_t idx = comb_index(ig_opts->replication, comb_tmp);
+            cs[idx].count++;
+            cs[idx].bytes += total_objs[i].size;
+        }
     }
     t2 = Wtime();
     printf("# Done.\n");
@@ -100,13 +139,59 @@ int main(
     else
     {
         printf("# NOTE: computational performance not shown.\n");
-        printf("#   calculating combinations and outputing to %s.\n", ig_opts->comb_name);
+        printf("#  Calculating combinations and outputing to %s.\n", ig_opts->comb_name);
     }
 
     /* we don't need the global list any more */
     free(total_objs);
     total_obj_count = 0;
     total_byte_count = 0;
+
+    /* print out the counts of used combinations */
+    if (ig_opts->comb_name){
+        int sz = 1<<20;
+        char *buf = malloc(sz);
+        int written = 0;
+        uint64_t total = 0;
+        uint64_t num_zeros;
+
+        printf("Sorting/writing server combinations\n");
+        qsort(cs, num_combs, sizeof(*cs), comb_cmp);
+
+        /* find the number of 0 entries - we aren't printing them */
+        for (num_zeros = 0;
+             cs[num_zeros].count == 0 && num_zeros < num_combs;
+             num_zeros++);
+
+        /* print the header - the number of possible combinations and the
+         * number of non-zero entries */
+        written = snprintf(buf+written, sz, "%lu %lu\n", num_combs,
+                num_combs-num_zeros);
+        assert(written < sz);
+
+        /* start the counter where we left off */
+        total = num_zeros;
+        while (total < num_combs){
+            int w = snprintf(buf+written, sz-written, "%lu %lu\n", 
+                    cs[total].count, cs[total].bytes);
+            if (w >= sz-written){
+                ret = write(fd, buf, written);
+                assert(ret == written);
+                written=0;
+            }
+            else{
+                written += w;
+                total++;
+            }
+        }
+        if (written > 0){
+            ret = write(fd, buf, written);
+            assert(ret == written);
+        }
+    }
+
+    close(fd);
+
 
     return(0);
 }
@@ -189,6 +274,17 @@ static struct options *parse_args(int argc, char *argv[])
 
     return(opts);
 }
+
+static int comb_cmp (const void *a, const void *b){
+    unsigned long au = ((struct comb_stats*)a)->count;
+    unsigned long bu = ((struct comb_stats*)b)->count; 
+    int rtn;
+    if (au < bu)       rtn = -1;
+    else if (au == bu) rtn = 0;
+    else               rtn = 1;
+    return rtn;
+}
+
 
 
 /*
