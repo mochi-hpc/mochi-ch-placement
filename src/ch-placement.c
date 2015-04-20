@@ -18,6 +18,7 @@ extern struct placement_mod_map ring_mod_map;
 extern struct placement_mod_map multiring_mod_map;
 extern struct placement_mod_map hash_lookup3_mod_map;
 extern struct placement_mod_map hash_spooky_mod_map;
+extern struct placement_mod_map two_d_mod_map;
 
 /* table of available modules */
 static struct placement_mod_map *table[] = 
@@ -27,6 +28,7 @@ static struct placement_mod_map *table[] =
     &multiring_mod_map,
     &hash_lookup3_mod_map,
     &hash_spooky_mod_map,
+    &two_d_mod_map,
     NULL,
 };
 
