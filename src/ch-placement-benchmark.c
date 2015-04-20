@@ -87,13 +87,14 @@ int main(
     t2 = Wtime();
     printf("# Done.\n");
 
-    printf("# <objects>\t<replication>\t<servers>\t<algorithm>\t<time (s)>\n");
-    printf("%u\t%d\t%u\t%s\t%f\n",
+    printf("# <objects>\t<replication>\t<servers>\t<algorithm>\t<time (s)>\t<rate oids/s>\n");
+    printf("%u\t%d\t%u\t%s\t%f\t%f\n",
         ig_opts->num_objs,
         ig_opts->replication,
         ig_opts->num_servers,
         ig_opts->placement,
-        t2-t1);
+        t2-t1,
+        (double)ig_opts->num_objs/(t2-t1));
 
     /* we don't need the global list any more */
     free(total_objs);
