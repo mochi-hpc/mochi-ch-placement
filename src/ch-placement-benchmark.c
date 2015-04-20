@@ -33,8 +33,6 @@ struct options
 static int usage (char *exename);
 static struct options *parse_args(int argc, char *argv[]);
 
-#define OBJ_ARRAY_SIZE 5000000UL
-
 static double Wtime(void)
 {
     struct timeval t;
@@ -67,13 +65,13 @@ int main(
 
     /* generate random set of objects for testing */
     printf("# Generating random object IDs...\n");
-    oid_gen("random", instance, OBJ_ARRAY_SIZE, ULONG_MAX,
+    oid_gen("random", instance, ig_opts->num_objs, ULONG_MAX,
         8675309, ig_opts->replication, ig_opts->num_servers,
         NULL,
         &total_byte_count, &total_obj_count, &total_objs);
-    printf("# Done.\n");
+    printf("# Done.  Consumed approximately %lu MiB of memory.\n", (ig_opts->num_objs*sizeof(*total_objs))/(1024*1024));
 
-    assert(total_obj_count == OBJ_ARRAY_SIZE);
+    assert(total_obj_count == ig_opts->num_objs);
 
     sleep(1);
 
@@ -83,7 +81,7 @@ int main(
 #pragma omp parallel for
     for(i=0; i<ig_opts->num_objs; i++)
     {
-        ch_placement_find_closest(instance, total_objs[i%OBJ_ARRAY_SIZE].oid, ig_opts->replication, total_objs[i%OBJ_ARRAY_SIZE].server_idxs);
+        ch_placement_find_closest(instance, total_objs[i].oid, ig_opts->replication, total_objs[i].server_idxs);
     }
     t2 = Wtime();
     printf("# Done.\n");
