@@ -18,6 +18,7 @@
 
 #include "oid-gen.h"
 #include "ch-placement.h"
+#include "comb.h"
 
 struct options
 {
