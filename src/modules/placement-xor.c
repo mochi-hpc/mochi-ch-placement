@@ -89,6 +89,7 @@ struct placement_mod* placement_mod_xor(int n_svrs, int virt_factor)
     return(mod_xor);
 }
 
+/* TODO: implement a faster version of this; should not be O(n) */
 static void placement_find_closest_xor(struct placement_mod *mod, uint64_t obj, unsigned int replication, 
     unsigned long* server_idxs)
 {
