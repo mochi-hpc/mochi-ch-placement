@@ -12,15 +12,17 @@
 #include "src/modules/placement-mod.h"
 #include "src/lookup3.h"
 
-static struct placement_mod* placement_mod_xor(int n_svrs, int virt_factor);
-static void placement_find_closest_xor(struct placement_mod *mod, uint64_t obj, unsigned int replication, 
+static struct placement_mod* placement_mod_hash_lookup3(int n_svrs, int virt_factor);
+static void placement_find_closest_hash_lookup3(struct placement_mod *mod, uint64_t obj, unsigned int replication, 
     unsigned long *server_idxs);
-static void placement_finalize_xor(struct placement_mod *mod);
+static void placement_finalize_hash_lookup3(struct placement_mod *mod);
 
-struct placement_mod_map xor_mod_map = 
+static uint64_t placement_distance_hash(uint64_t a, uint64_t b);
+
+struct placement_mod_map hash_lookup3_mod_map = 
 {
-    .type = "xor",
-    .initiate = placement_mod_xor,
+    .type = "hash_lookup3",
+    .initiate = placement_mod_hash_lookup3,
 };
 
 struct vnode
@@ -29,38 +31,38 @@ struct vnode
     uint64_t svr_id;
 };
 
-struct xor_state
+struct hash_lookup3_state
 {
     unsigned int n_svrs;
     unsigned int virt_factor;
     struct vnode *virt_table;
 };
 
-struct placement_mod* placement_mod_xor(int n_svrs, int virt_factor)
+struct placement_mod* placement_mod_hash_lookup3(int n_svrs, int virt_factor)
 {
-    struct placement_mod *mod_xor;
-    struct xor_state *mod_state;
+    struct placement_mod *mod_hash_lookup3;
+    struct hash_lookup3_state *mod_state;
     uint32_t h1, h2;
     uint64_t i, j;
 
-    mod_xor = malloc(sizeof(*mod_xor));
-    if(!mod_xor)
+    mod_hash_lookup3 = malloc(sizeof(*mod_hash_lookup3));
+    if(!mod_hash_lookup3)
         return(NULL);
 
     mod_state = malloc(sizeof(*mod_state));
     if(!mod_state)
     {
-        free(mod_xor);
+        free(mod_hash_lookup3);
         return(NULL);
     }
 
-    mod_xor->data = mod_state;
+    mod_hash_lookup3->data = mod_state;
 
     mod_state->virt_table = malloc(sizeof(*mod_state->virt_table)*n_svrs*virt_factor);
     if(!mod_state->virt_table)
     {
         free(mod_state);
-        free(mod_xor);
+        free(mod_hash_lookup3);
         return(NULL);
     }
 
@@ -82,17 +84,17 @@ struct placement_mod* placement_mod_xor(int n_svrs, int virt_factor)
         }
     }
 
-    mod_xor->find_closest = placement_find_closest_xor;
-    mod_xor->create_striped = placement_create_striped_random;
-    mod_xor->finalize = placement_finalize_xor;
+    mod_hash_lookup3->find_closest = placement_find_closest_hash_lookup3;
+    mod_hash_lookup3->create_striped = placement_create_striped_random;
+    mod_hash_lookup3->finalize = placement_finalize_hash_lookup3;
 
-    return(mod_xor);
+    return(mod_hash_lookup3);
 }
 
-static void placement_find_closest_xor(struct placement_mod *mod, uint64_t obj, unsigned int replication, 
+static void placement_find_closest_hash_lookup3(struct placement_mod *mod, uint64_t obj, unsigned int replication, 
     unsigned long* server_idxs)
 {
-    struct xor_state *mod_state = mod->data;
+    struct hash_lookup3_state *mod_state = mod->data;
     struct vnode closest[CH_MAX_REPLICATION];
     struct vnode svr, tmp_svr;
     unsigned int i,j;
@@ -105,7 +107,7 @@ static void placement_find_closest_xor(struct placement_mod *mod, uint64_t obj, 
         svr = mod_state->virt_table[i];
         for(j=0; j<replication; j++)
         {
-            if(closest[j].svr_idx == UINT64_MAX || (obj ^ svr.svr_id) < (obj ^ closest[j].svr_id))
+            if(closest[j].svr_idx == UINT64_MAX || placement_distance_hash(obj, svr.svr_id) < placement_distance_hash(obj, closest[j].svr_id))
             {
                 tmp_svr = closest[j];
                 closest[j] = svr;
@@ -122,9 +124,41 @@ static void placement_find_closest_xor(struct placement_mod *mod, uint64_t obj, 
     return;
 }
 
-static void placement_finalize_xor(struct placement_mod *mod)
+static uint64_t placement_distance_hash(uint64_t a, uint64_t b)
 {
-    struct xor_state *mod_state = mod->data;
+    uint64_t higher;
+    uint64_t lower;
+    uint64_t dist;
+    uint32_t h1, h2;
+
+    /* figure out wich number is higher */
+    /* we are just doing this to make the operation commutative, so
+     * dist(a,b) == dist(b,a)
+     */
+    if(a>b)
+    {
+        higher = a;
+        lower = b;
+    }
+    else
+    {
+        higher = b;
+        lower = a;
+    }
+
+    h1 = higher & 0xFFFFFFFF;
+    h2 = (higher >> 32) & 0xFFFFFFFF;
+
+    ch_bj_hashlittle2(&lower, sizeof(lower), &h1, &h2);
+
+    dist  = h1 + (((uint64_t)h2)<<32);
+
+    return(dist);
+}
+
+static void placement_finalize_hash_lookup3(struct placement_mod *mod)
+{
+    struct hash_lookup3_state *mod_state = mod->data;
 
     free(mod_state->virt_table);
     free(mod_state);
@@ -132,7 +166,6 @@ static void placement_finalize_xor(struct placement_mod *mod)
 
     return;
 }
-
 
 /*
  * Local variables:
