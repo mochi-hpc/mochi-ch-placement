@@ -13,6 +13,7 @@ AC_CONFIG_SRCDIR([include/ch-placement.h])
 AC_CONFIG_HEADER([ch-placement-config.h])
 
 AC_PROG_CC
+AC_PROG_CXX
 AM_PROG_CC_C_O
 m4_ifdef([AM_PROG_AR], [AM_PROG_AR])
 LT_INIT([disable-shared])
