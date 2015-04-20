@@ -12,6 +12,7 @@ bin_PROGRAMS += \
  src/ch-placement-benchmark-omp
 
 src_ch_placement_benchmark_omp_SOURCES = src/ch-placement-benchmark.c
-
 src_ch_placement_benchmark_omp_CPPFLAGS = -fopenmp $(AM_CPPFLAGS)
 src_ch_placement_benchmark_omp_LDFLAGS = -fopenmp $(AM_LDFLAGS)
+
+src_ch_placement_benchmark_CPPFLAGS = -Wno-unknown-pragmas $(AM_CPPFLAGS)
