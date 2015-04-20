@@ -8,4 +8,10 @@ lib_libch_placement_la_SOURCES += \
 bin_PROGRAMS += \
  src/ch-placement-lookup \
  src/ch-placement-stripe \
- src/ch-placement-benchmark
+ src/ch-placement-benchmark \
+ src/ch-placement-benchmark-omp
+
+src_ch_placement_benchmark_omp_SOURCES = src/ch-placement-benchmark.c
+
+src_ch_placement_benchmark_omp_CPPFLAGS = -fopenmp $(AM_CPPFLAGS)
+src_ch_placement_benchmark_omp_LDFLAGS = -fopenmp $(AM_LDFLAGS)
