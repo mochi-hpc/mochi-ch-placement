@@ -204,6 +204,7 @@ static int usage (char *exename)
     fprintf(stderr, "    -r <replication factor>\n");
     fprintf(stderr, "    -p <placement algorithm>\n");
     fprintf(stderr, "    -v <virtual nodes per physical node>\n");
+    fprintf(stderr, "    -c <output file for combinatorial statistics>\n");
 
     exit(1);
 }
