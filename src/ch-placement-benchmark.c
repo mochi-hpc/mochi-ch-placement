@@ -127,11 +127,12 @@ int main(
 
     if(!ig_opts->comb_name)
     {
-        printf("# <objects>\t<replication>\t<servers>\t<algorithm>\t<time (s)>\t<rate oids/s>\n");
-        printf("%u\t%d\t%u\t%s\t%f\t%f\n",
+        printf("# <objects>\t<replication>\t<servers>\t<virt_factor>\t<algorithm>\t<time (s)>\t<rate oids/s>\n");
+        printf("%u\t%d\t%u\t%u\t%s\t%f\t%f\n",
             ig_opts->num_objs,
             ig_opts->replication,
             ig_opts->num_servers,
+            ig_opts->virt_factor,
             ig_opts->placement,
             t2-t1,
             (double)ig_opts->num_objs/(t2-t1));
