@@ -42,6 +42,7 @@ int main(
     struct obj* total_objs = NULL;
     unsigned int i;
     struct ch_placement_instance *instance;
+    unsigned long *replica_targets;
 
     ig_opts = parse_args(argc, argv);
     if(!ig_opts)
@@ -49,6 +50,14 @@ int main(
         usage(argv[0]);
         return(-1);
     }
+
+    replica_targets = malloc(ig_opts->num_servers*sizeof(*replica_targets));
+    if(!replica_targets)
+    {
+        perror("malloc");
+        return(-1);
+    }
+    memset(replica_targets, 0, ig_opts->num_servers*sizeof(*replica_targets));
 
     instance = ch_placement_initialize(ig_opts->placement, 
         ig_opts->num_servers,
@@ -73,21 +82,33 @@ int main(
     }
     printf("# Done.\n");
 
-#if 0
-    printf("# <objects>\t<replication>\t<servers>\t<algorithm>\t<time (s)>\t<rate oids/s>\n");
-    printf("%u\t%d\t%u\t%s\t%f\t%f\n",
-        ig_opts->num_objs,
-        ig_opts->replication,
-        ig_opts->num_servers,
-        ig_opts->placement,
-        t2-t1,
-        (double)ig_opts->num_objs/(t2-t1));
-#endif 
+#pragma omp parallel for
+    for(i=0; i<ig_opts->num_objs; i++)
+    {
+        int j;
+        for(j=0; j<ig_opts->replication; j++)
+        {
+            if(total_objs[i].server_idxs[j] == ig_opts->kill_svr)
+            {
+                replica_targets[total_objs[i].server_idxs[ig_opts->replication]]++;
+                break;
+            }
+        }
+    }
+
+    printf("# Simulating failure of server %u out of %u\n", ig_opts->kill_svr, ig_opts->num_servers);
+    printf("# Total objects: %u\n", ig_opts->num_objs);
+    printf("# <svr_idx>\t<num new replicas>\n");
+    for(i=0; i<ig_opts->num_servers; i++)
+    {
+        printf("%u\t%lu\n", i, replica_targets[i]);
+    }
 
     /* we don't need the global list any more */
     free(total_objs);
     total_obj_count = 0;
     total_byte_count = 0;
+    free(replica_targets);
 
     return(0);
 }
