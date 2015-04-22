@@ -189,10 +189,8 @@ int main(
             ret = write(fd, buf, written);
             assert(ret == written);
         }
+        close(fd);
     }
-
-    close(fd);
-
 
     return(0);
 }
