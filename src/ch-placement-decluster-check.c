@@ -27,6 +27,7 @@ struct options
     char* placement;
     unsigned int virt_factor;
     unsigned int kill_svr;
+    int seed;
 };
 
 static int usage (char *exename);
@@ -62,12 +63,12 @@ int main(
     instance = ch_placement_initialize(ig_opts->placement, 
         ig_opts->num_servers,
         ig_opts->virt_factor,
-        0);
+        ig_opts->seed);
 
     /* generate random set of objects for testing */
     printf("# Generating random object IDs...\n");
     oid_gen("random", instance, ig_opts->num_objs, ULONG_MAX,
-        8675309, ig_opts->replication+1, ig_opts->num_servers,
+        ig_opts->seed, ig_opts->replication+1, ig_opts->num_servers,
         NULL,
         &total_byte_count, &total_obj_count, &total_objs);
     printf("# Done.\n");
@@ -123,6 +124,7 @@ static int usage (char *exename)
     fprintf(stderr, "    -p <placement algorithm>\n");
     fprintf(stderr, "    -v <virtual nodes per physical node>\n");
     fprintf(stderr, "    -k <server to kill>\n");
+    fprintf(stderr, "    -z <random seed/hash salt>\n");
 
     exit(1);
 }
@@ -138,7 +140,7 @@ static struct options *parse_args(int argc, char *argv[])
         return(NULL);
     memset(opts, 0, sizeof(*opts));
 
-    while((one_opt = getopt(argc, argv, "s:o:r:hp:v:k:")) != EOF)
+    while((one_opt = getopt(argc, argv, "s:o:r:hp:v:k:z:")) != EOF)
     {
         switch(one_opt)
         {
@@ -159,6 +161,11 @@ static struct options *parse_args(int argc, char *argv[])
                 break;
             case 'v':
                 ret = sscanf(optarg, "%u", &opts->virt_factor);
+                if(ret != 1)
+                    return(NULL);
+                break;
+            case 'z':
+                ret = sscanf(optarg, "%d", &opts->seed);
                 if(ret != 1)
                     return(NULL);
                 break;
