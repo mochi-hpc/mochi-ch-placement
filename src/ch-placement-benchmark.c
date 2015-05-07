@@ -90,7 +90,8 @@ int main(
 
     instance = ch_placement_initialize(ig_opts->placement, 
         ig_opts->num_servers,
-        ig_opts->virt_factor);
+        ig_opts->virt_factor,
+        0);
 
     /* generate random set of objects for testing */
     printf("# Generating random object IDs...\n");

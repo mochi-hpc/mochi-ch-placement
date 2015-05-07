@@ -15,7 +15,7 @@
 struct ch_placement_instance;
 
 struct ch_placement_instance* ch_placement_initialize(const char* name, 
-    int n_svrs, int virt_factor);
+    int n_svrs, int virt_factor, int seed);
 
 void ch_placement_finalize(struct ch_placement_instance *instance);
 

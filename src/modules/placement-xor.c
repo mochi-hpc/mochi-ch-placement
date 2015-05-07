@@ -12,7 +12,7 @@
 #include "src/modules/placement-mod.h"
 #include "src/lookup3.h"
 
-static struct placement_mod* placement_mod_xor(int n_svrs, int virt_factor);
+static struct placement_mod* placement_mod_xor(int n_svrs, int virt_factor, int seed);
 static void placement_find_closest_xor(struct placement_mod *mod, uint64_t obj, unsigned int replication, 
     unsigned long *server_idxs);
 static void placement_finalize_xor(struct placement_mod *mod);
@@ -36,7 +36,7 @@ struct xor_state
     struct vnode *virt_table;
 };
 
-struct placement_mod* placement_mod_xor(int n_svrs, int virt_factor)
+struct placement_mod* placement_mod_xor(int n_svrs, int virt_factor, int seed)
 {
     struct placement_mod *mod_xor;
     struct xor_state *mod_state;
@@ -75,7 +75,7 @@ struct placement_mod* placement_mod_xor(int n_svrs, int virt_factor)
         for(j=0; j<virt_factor; j++)
         {
             h1 = j;
-            h2 = 0;
+            h2 = seed;
             ch_bj_hashlittle2(&i, sizeof(i), &h1, &h2);
             mod_state->virt_table[j*n_svrs+i].svr_idx = i;
             mod_state->virt_table[j*n_svrs+i].svr_id = h1 + (((uint64_t)h2)<<32);

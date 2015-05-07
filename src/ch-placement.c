@@ -62,7 +62,7 @@ struct ch_placement_instance* ch_placement_initialize_crush(struct crush_map *ma
 #endif
 
 struct ch_placement_instance* ch_placement_initialize(const char* name,
-    int n_svrs, int virt_factor)
+    int n_svrs, int virt_factor, int seed)
 {
     struct ch_placement_instance *instance = NULL;
     int i;
@@ -74,7 +74,7 @@ struct ch_placement_instance* ch_placement_initialize(const char* name,
             instance = malloc(sizeof(*instance));
             if(instance)
             {
-                instance->mod = table[i]->initiate(n_svrs, virt_factor);
+                instance->mod = table[i]->initiate(n_svrs, virt_factor, seed);
                 if(!instance->mod)
                 {
                     free(instance);

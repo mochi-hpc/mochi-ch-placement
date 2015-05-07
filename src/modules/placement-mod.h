@@ -25,7 +25,7 @@ struct placement_mod
 struct placement_mod_map
 {
     char* type;
-    struct placement_mod* (*initiate)(int n_svrs, int virt_factor);
+    struct placement_mod* (*initiate)(int n_svrs, int virt_factor, int seed);
 };
 
 /* generic striping function; just allocates random oids */

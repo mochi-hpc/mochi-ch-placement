@@ -71,7 +71,7 @@ int main(int argc, char **argv)
 
     /**************************/
 
-    inst = ch_placement_initialize(argv[1], n_svrs, virt_factor);
+    inst = ch_placement_initialize(argv[1], n_svrs, virt_factor, 0);
 
     if(!inst)
     {
