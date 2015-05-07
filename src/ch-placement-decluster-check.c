@@ -16,7 +16,7 @@
 #include <limits.h>
 #include <sys/time.h>
 
-#include "oid-gen.h"
+#include "ch-placement-oid-gen.h"
 #include "ch-placement.h"
 
 struct options

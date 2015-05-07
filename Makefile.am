@@ -10,7 +10,7 @@ check_PROGRAMS =
 bin_PROGRAMS =
 noinst_LTLIBRARIES =
 lib_LTLIBRARIES =
-include_HEADERS = include/ch-placement.h include/ch-placement-crush.h
+include_HEADERS = include/ch-placement.h include/ch-placement-crush.h include/ch-placement-oid-gen.h
 
 AM_CPPFLAGS =
 

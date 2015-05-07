@@ -32,9 +32,9 @@ void oid_gen(char* gen_name,
     unsigned long* total_obj_count,
     struct obj** total_objs);
 
-void objects_sort(struct obj* objs, unsigned int objs_count);
+void oid_sort(struct obj* objs, unsigned int objs_count);
 
-void objects_randomize(struct obj* objs, unsigned int objs_count, unsigned int seed);
+void oid_randomize(struct obj* objs, unsigned int objs_count, unsigned int seed);
 
 #endif /* OID_GEN_H */
 

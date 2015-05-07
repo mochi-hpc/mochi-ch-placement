@@ -10,7 +10,7 @@
 #include <stdio.h>
 #include <limits.h>
 
-#include "oid-gen.h"
+#include "ch-placement-oid-gen.h"
 #include "ch-placement.h"
 
 #define PRINT_PROGRESS 1
@@ -66,14 +66,14 @@ static void oid_gen_basic(
     struct obj** total_objs);
 static int obj_cmp(const void* a, const void *b);
 
-void objects_sort(struct obj* objs, unsigned int objs_count)
+void oid_sort(struct obj* objs, unsigned int objs_count)
 {
     qsort(objs, objs_count, sizeof(*objs), obj_cmp);
 
     return;
 }
 
-void objects_randomize(struct obj* objs, unsigned int objs_count, unsigned int seed)
+void oid_randomize(struct obj* objs, unsigned int objs_count, unsigned int seed)
 {
     unsigned int i;
     unsigned int j;
@@ -191,7 +191,7 @@ static void oid_gen_random(
 #endif
 
     /* sort and filter out duplicate OIDs */
-    objects_sort(*total_objs, *total_objs_count);
+    oid_sort(*total_objs, *total_objs_count);
 
     for(i=0; i<((*total_objs_count)-1); i++)
     {
