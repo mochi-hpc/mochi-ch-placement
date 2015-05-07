@@ -3,9 +3,9 @@ exec_prefix=@exec_prefix@
 libdir=@libdir@
 includedir=@includedir@
 
-Name: c-utils
-Description: General purpose C utility functions
-Version: 1.0
-URL: http://www.mcs.anl.gov/projects/triton/
-Libs: -L${libdir} -lc-utils
+Name: ch-placement
+Description: consistent hashing placement library
+Version: 0.1
+URL: http://www.mcs.anl.gov/projects/codes
+Libs: -L${libdir} -lch-placement
 Cflags: -I${includedir}
