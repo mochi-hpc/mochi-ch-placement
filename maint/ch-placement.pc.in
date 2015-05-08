@@ -8,4 +8,5 @@ Description: consistent hashing placement library
 Version: 0.1
 URL: http://www.mcs.anl.gov/projects/codes
 Libs: -L${libdir} -lch-placement
-Cflags: -I${includedir}
+Libs.private: @LDFLAGS@ @LIBS@
+Cflags: -I${includedir} @CFLAGS@

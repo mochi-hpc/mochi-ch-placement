@@ -39,7 +39,7 @@ struct ch_placement_instance
 
 #ifdef CH_ENABLE_CRUSH
 #include "ch-placement-crush.h"
-extern struct placement_mod* placement_mod_crush(struct crush_map *map, __u32 *weight, int n_weight)
+extern struct placement_mod* placement_mod_crush(struct crush_map *map, __u32 *weight, int n_weight);
 
 struct ch_placement_instance* ch_placement_initialize_crush(struct crush_map *map, __u32 *weight, int n_weight)
 {

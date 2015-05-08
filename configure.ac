@@ -32,8 +32,8 @@ AC_ARG_WITH([crush],[AS_HELP_STRING([--with-crush@<:@=DIR@:>@],
 AM_CONDITIONAL([CH_ENABLE_CRUSH], [test "x${with_crush}" != "x"])
 if test "x${with_crush}" != "x" ; then
     AC_DEFINE([CH_ENABLE_CRUSH], [], [Define if CRUSH alogithm support enabled])
-    CFLAGS+=" -I${with_crush}/include"
-    CPPFLAGS+=" -I${with_crush}/include"
+    CFLAGS+=" -I${with_crush}/include -DCH_ENABLE_CRUSH=1"
+    CPPFLAGS+=" -I${with_crush}/include -DCH_ENABLE_CRUSH=1"
     LDFLAGS+=" -L${with_crush}/lib"
     LIBS+=" -lrados -lm"
 fi
