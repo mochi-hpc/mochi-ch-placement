@@ -35,7 +35,7 @@ if test "x${with_crush}" != "x" ; then
     CFLAGS+=" -I${with_crush}/include -DCH_ENABLE_CRUSH=1"
     CPPFLAGS+=" -I${with_crush}/include -DCH_ENABLE_CRUSH=1"
     LDFLAGS+=" -L${with_crush}/lib"
-    LIBS+=" -lrados -lm"
+    LIBS+=" -lcephfs -lm"
 fi
 
 BUILD_ABSOLUTE_TOP=${PWD}
