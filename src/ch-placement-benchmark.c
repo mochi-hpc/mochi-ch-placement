@@ -18,6 +18,9 @@
 
 #include "ch-placement-oid-gen.h"
 #include "ch-placement.h"
+#ifdef CH_ENABLE_CRUSH
+#include "ch-placement-crush.h"
+#endif
 #include "comb.h"
 
 struct options
@@ -46,6 +49,61 @@ static double Wtime(void)
     return((double)t.tv_sec + (double)(t.tv_usec) / 1000000);
 }
 
+#ifdef CH_ENABLE_CRUSH
+#include <hash.h>
+static int setup_crush(struct options *ig_opts,
+    struct crush_map **map, __u32 **weight, int *n_weight)
+{
+    struct crush_bucket* bucket;
+    int i;
+    int *items;
+    int *weights;
+    int ret;
+    int id;
+    struct crush_rule* rule;
+
+    *n_weight = ig_opts->num_servers;
+
+    *weight = malloc(sizeof(**weight)*ig_opts->num_servers);
+    weights = malloc(sizeof(*weights)*ig_opts->num_servers);
+    items = malloc(sizeof(*items) * ig_opts->num_servers);
+    if(!(*weight) || !weights || !items || !map)
+    {
+        return(-1);
+    }
+    
+    for(i=0; i< ig_opts->num_servers; i++)
+    {
+        items[i] = i;
+        weights[i] = 0x10000;
+        (*weight)[i] = 0x10000;
+    }
+
+    *map = crush_create();
+    assert(*map);
+    bucket = crush_make_bucket(*map, CRUSH_BUCKET_STRAW, CRUSH_HASH_DEFAULT, 1,
+            ig_opts->num_servers, items, weights);
+    assert(bucket);
+    
+    ret = crush_add_bucket(*map, -2, bucket, &id);
+    assert(ret == 0);
+
+    crush_finalize(*map);
+
+    rule = crush_make_rule(3, 0, 1, 1, 10);
+    assert(rule);
+
+    crush_rule_set_step(rule, 0, CRUSH_RULE_TAKE, id, 0);
+    crush_rule_set_step(rule, 1, CRUSH_RULE_CHOOSELEAF_FIRSTN, 8, 0);
+    crush_rule_set_step(rule, 2, CRUSH_RULE_EMIT, 0, 0);
+
+    ret = crush_add_rule(*map, rule, 0);
+    assert(ret == 0);
+
+    return(0);
+}
+#endif
+
 int main(
     int argc,
     char **argv)
@@ -62,6 +120,11 @@ int main(
     uint64_t num_combs;
     unsigned long comb_tmp[CH_MAX_REPLICATION];
     int ret;
+#ifdef CH_ENABLE_CRUSH
+    struct crush_map *map;
+    __u32 *weight;
+    int n_weight;
+#endif
 
     ig_opts = parse_args(argc, argv);
     if(!ig_opts)
@@ -88,10 +151,28 @@ int main(
 
     }
 
-    instance = ch_placement_initialize(ig_opts->placement, 
-        ig_opts->num_servers,
-        ig_opts->virt_factor,
-        0);
+    if(strcmp(ig_opts->placement, "crush") == 0)
+    {
+#ifdef CH_ENABLE_CRUSH
+        ret = setup_crush(ig_opts, &map, &weight, &n_weight);
+        if(ret < 0)
+        {
+            fprintf(stderr, "Error: failed to set up CRUSH.\n");
+            return(-1);
+        }
+        
+        instance = ch_placement_initialize_crush(map, weight, n_weight);
+#else
+        fprintf(stderr, "Error: not compiled with CRUSH support.\n");
+#endif
+    }
+    else
+    {
+        instance = ch_placement_initialize(ig_opts->placement, 
+            ig_opts->num_servers,
+            ig_opts->virt_factor,
+            0);
+    }
 
     /* generate random set of objects for testing */
     printf("# Generating random object IDs...\n");
