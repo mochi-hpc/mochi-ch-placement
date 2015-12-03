@@ -8,6 +8,11 @@ make check # optional
 
 # if you want to enable CRUSH support
 #-------------------------------------
+# NOTE: the following instructions assume that you have compiled Ceph in
+# a separate subdirectory from the Ceph source code called "build".  If that
+# is not the case then just remove the "build/" prefix from files described
+# below.
+#
 # compile and install CEPH to $CEPH_PREFIX
 #   copy src/crush/{crush|builder|mapper|hash}.h to $CEPH_PREFIX/include
 #   copy build/src/acconfig.h to $CEPH_PREFIX/include
