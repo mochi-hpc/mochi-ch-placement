@@ -8,6 +8,10 @@ make check # optional
 
 # if you want to enable CRUSH support
 #-------------------------------------
+# 
+# NOTE: this has only been tested with Ceph version 0.94.3.  The CRUSH API
+# may be different in other versions of Ceph.
+#
 # NOTE: the following instructions assume that you have compiled Ceph in
 # a separate subdirectory from the Ceph source code called "build".  If that
 # is not the case then just remove the "build/" prefix from files described
