@@ -11,6 +11,9 @@
 #include <ch-placement.h>
 #include <builder.h>
 
+/* define to enable support for experimental CRUSH VRING bucket type */
+#undef CH_ENABLE_CRUSH_VRING
+
 /* special case initialization for using a crush map instead of one of the
  * build in modules.  Requires that the crush map (complete with rule 0) 
  * be constructed externally and passed in.

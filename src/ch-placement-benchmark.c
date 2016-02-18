@@ -82,8 +82,12 @@ static int setup_crush(struct options *ig_opts,
     *map = crush_create();
     assert(*map);
     if(strcmp(ig_opts->placement, "crush-vring") == 0)
+#ifdef CH_ENABLE_CRUSH_VRING
         bucket = crush_make_bucket(*map, CRUSH_BUCKET_VRING, CRUSH_HASH_DEFAULT, 1,
                 ig_opts->num_servers, items, weights);
+#else
+        assert(0);
+#endif
     else
         bucket = crush_make_bucket(*map, CRUSH_BUCKET_STRAW, CRUSH_HASH_DEFAULT, 1,
                 ig_opts->num_servers, items, weights);
