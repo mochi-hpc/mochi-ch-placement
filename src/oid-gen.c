@@ -226,6 +226,10 @@ struct bin
     unsigned long min;
     unsigned long max;
     unsigned long count;
+    unsigned long check_count;
+    unsigned long check_size;
+    unsigned long obj_count;
+    unsigned long obj_size;
     double cumu_percentage;
 };
 
@@ -254,15 +258,19 @@ static void oid_gen_hist_stripe(
     char buffer[512];
     struct bin *bin_array;
     int nbins = 0;
-    int i;
+    int i,j;
     unsigned long total_count = 0;
     unsigned long running_count = 0;
+    unsigned long total_check_count = 0;
+    unsigned long total_obj_count = 0;
+    unsigned long total_check_size = 0;
     uint64_t r;
     double r_float;
     struct bin *r_bin;
     uint64_t size;
     uint64_t *oids;
     unsigned long *sizes;
+    unsigned long biggest_size = 0;
     unsigned int num_oids;
 #if 0
     int *server_overlaps;
@@ -413,14 +421,33 @@ static void oid_gen_hist_stripe(
             break;
 
         file_count++;
+        r_bin->check_count++;
+        r_bin->check_size += size;
+        total_check_count++;
+        total_check_size += size;
+
         /* add objects to list */
         for(i=0; i<num_oids; i++)
         {
+            for(j=0; j<50; j++)
+            {
+                if(bin_array[j].min <= sizes[i] &&
+                    bin_array[j].max >= sizes[i])
+                {
+                    bin_array[j].obj_count++;
+                    bin_array[j].obj_size += sizes[i];
+                    total_obj_count++;
+                    break;
+                }
+            }
+
             (*total_objs)[*total_objs_count].oid = oids[i];
             (*total_objs)[*total_objs_count].replication = replication;
             assert(sizes[i] > 0);
             (*total_objs)[*total_objs_count].size = sizes[i];
             (*total_objs_count)++;
+            if(sizes[i] > biggest_size)
+                biggest_size = sizes[i];
         }
         (*total_byte_count) += size;
 
@@ -447,9 +474,23 @@ static void oid_gen_hist_stripe(
     }
 #if PRINT_PROGRESS
     printf("...100%%\n");
+    printf("FOO: biggest_size: %lu\n", biggest_size);
     fflush(stdout);
 #endif
     printf("# Produced %lu files.\n", file_count);
+
+    printf("# <min> <max> <file_count> <file_count_pct> <file_size_pct> <obj_count> <obj_count_pct> <obj_size_pct>\n");
+    for(i=0; i<35; i++)
+    {
+        //printf("FOO: %f %f\n", (double)bin_array[i].obj_size,
+        //    (double)total_check_size);
+        printf("%lu %lu %lu %f %f %lu %f %f\n", bin_array[i].min,
+            bin_array[i].max, bin_array[i].check_count, (double)bin_array[i].check_count/(double)total_check_count, (double)bin_array[i].check_size/(double)total_check_size, 
+            bin_array[i].obj_count,
+            (double)bin_array[i].obj_count/(double)total_obj_count,
+            (double)bin_array[i].obj_size/(double)total_check_size);
+    }
+
 
     free(bin_array);
     free(oids);
@@ -491,6 +532,9 @@ static void oid_gen_hist_hadoop(
     int i;
     unsigned long total_count = 0;
     unsigned long running_count = 0;
+    unsigned long total_check_count = 0;
+    unsigned long total_obj_count = 0;
+    unsigned long total_check_size = 0;
     uint64_t r;
     double r_float;
     struct bin *r_bin;
@@ -511,6 +555,7 @@ static void oid_gen_hist_hadoop(
 
     bin_array = malloc(50*sizeof(*bin_array));
     assert(bin_array);
+    memset(bin_array, 0, 50*sizeof(*bin_array));
 
     /* parameters are mandatory for this function; expected in the format:
      * "strip_size:4194304,hist_file:mira-histo.dat"
@@ -621,9 +666,30 @@ static void oid_gen_hist_hadoop(
         /* divide into randomly generated objects of at most strip_size
          * each.
          */
+        r_bin->check_count++;
+        r_bin->check_size += size;
+        total_check_count++;
+        total_check_size += size;
         num_oids = size/strip_size;
+        bin_array[14].obj_count += num_oids;
+        bin_array[14].obj_size += size;
+        bin_array[14].obj_size -= (size%strip_size);
+        total_obj_count += num_oids;
         if(size % strip_size)
+        {
+            for(i=0; i<50; i++)
+            {
+                if(bin_array[i].min <= size%strip_size &&
+                    bin_array[i].max >= size%strip_size)
+                {
+                    bin_array[i].obj_count++;
+                    bin_array[i].obj_size += (size % strip_size);
+                    total_obj_count++;
+                    break;
+                }
+            }
             num_oids++;
+        }
   
         /* did we hit the object count limit? */
         if(*total_objs_count + num_oids > max_objs)
@@ -651,6 +717,18 @@ static void oid_gen_hist_hadoop(
 #endif
 
     printf("# Produced %lu files.\n", file_count);
+
+    printf("# <min> <max> <file_count> <file_count_pct> <file_size_pct> <obj_count> <obj_count_pct> <obj_size_pct>\n");
+    for(i=0; i<35; i++)
+    {
+        //printf("FOO: %f %f\n", (double)bin_array[i].obj_size,
+        //    (double)total_check_size);
+        printf("%lu %lu %lu %f %f %lu %f %f\n", bin_array[i].min,
+            bin_array[i].max, bin_array[i].check_count, (double)bin_array[i].check_count/(double)total_check_count, (double)bin_array[i].check_size/(double)total_check_size, 
+            bin_array[i].obj_count,
+            (double)bin_array[i].obj_count/(double)total_obj_count,
+            (double)bin_array[i].obj_size/(double)total_check_size);
+    }
 
     free(bin_array);
 
