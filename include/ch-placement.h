@@ -9,6 +9,10 @@
 
 #include <stdint.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* maximum replication factor allowed by library */
 #define CH_MAX_REPLICATION 5
 
@@ -37,8 +41,11 @@ void ch_placement_create_striped(
     uint64_t *oids, 
     unsigned long *sizes);
 
-#endif /* CH_PLACEMENT_H */
+#ifdef __cplusplus
+}
+#endif
 
+#endif /* CH_PLACEMENT_H */
 /*
  * Local variables:
  *  c-indent-level: 4

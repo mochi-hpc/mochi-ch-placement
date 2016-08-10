@@ -11,6 +11,10 @@
 #include <ch-placement.h>
 #include <builder.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* define to enable support for experimental CRUSH VRING bucket type */
 #undef CH_ENABLE_CRUSH_VRING
 
@@ -20,6 +24,10 @@
  */
 
 struct ch_placement_instance* ch_placement_initialize_crush(struct crush_map *map, __u32 *weight, int n_weight);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* CH_PLACEMENT_CRUSH_H */
 

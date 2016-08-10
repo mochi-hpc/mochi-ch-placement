@@ -10,6 +10,10 @@
 #include <stdint.h>
 #include <ch-placement.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* describes an object */
 struct obj
 {
@@ -35,6 +39,10 @@ void oid_gen(char* gen_name,
 void oid_sort(struct obj* objs, unsigned int objs_count);
 
 void oid_randomize(struct obj* objs, unsigned int objs_count, unsigned int seed);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* OID_GEN_H */
 
