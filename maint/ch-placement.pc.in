@@ -9,4 +9,4 @@ Version: 0.1
 URL: http://www.mcs.anl.gov/projects/codes
 Libs: -L${libdir} -lch-placement
 Libs.private: @LDFLAGS@ @LIBS@
-Cflags: -I${includedir} @CFLAGS@
+Cflags: -I${includedir} @CPPFLAGS@
