@@ -9,18 +9,21 @@ bin_PROGRAMS += \
  src/ch-placement-lookup \
  src/ch-placement-stripe \
  src/ch-placement-benchmark \
- src/ch-placement-decluster-check \
- src/ch-placement-benchmark-omp \
+ src/ch-placement-decluster-check
+
+if BUILD_OPENMP_BENCHMARKS
+bin_PROGRAMS += src/ch-placement-benchmark-omp \
  src/ch-placement-decluster-check-omp
+endif
 
 src_ch_placement_benchmark_omp_SOURCES = src/ch-placement-benchmark.c
-src_ch_placement_benchmark_omp_CPPFLAGS = -fopenmp $(AM_CPPFLAGS)
-src_ch_placement_benchmark_omp_LDFLAGS = -fopenmp $(AM_LDFLAGS)
+src_ch_placement_benchmark_omp_CPPFLAGS = $(OPENMP_CFLAGS) $(AM_CPPFLAGS)
+src_ch_placement_benchmark_omp_LDFLAGS = $(OPENMP_CFLAGS) $(AM_LDFLAGS)
 
 src_ch_placement_benchmark_CPPFLAGS = -Wno-unknown-pragmas $(AM_CPPFLAGS)
 
 src_ch_placement_decluster_check_omp_SOURCES = src/ch-placement-decluster-check.c
-src_ch_placement_decluster_check_omp_CPPFLAGS = -fopenmp $(AM_CPPFLAGS)
-src_ch_placement_decluster_check_omp_LDFLAGS = -fopenmp $(AM_LDFLAGS)
+src_ch_placement_decluster_check_omp_CPPFLAGS =  $(OPENMP_CFLAGS) $(AM_CPPFLAGS)
+src_ch_placement_decluster_check_omp_LDFLAGS = $(OPENMP_CFLAGS) $(AM_LDFLAGS)
 
 src_ch_placement_decluster_check_CPPFLAGS = -Wno-unknown-pragmas $(AM_CPPFLAGS)
