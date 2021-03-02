@@ -1,4 +1,4 @@
-# libch-placement
+# ch-placement
 
 libch-placement is a modular consistent hashing library. It can be used by a
 distributed storage system to access multiple hashing algorithms, distance
